@@ -1,0 +1,64 @@
+"""
+app.py
+======
+Entry point utama untuk aplikasi Streamlit.
+Hanya memiliki 3 halaman: Input, Proses, Output.
+"""
+
+import streamlit as st
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.resolve()))
+
+from ui.styles import apply_custom_styles
+from ui.main_page import render_main
+
+
+def main():
+    st.set_page_config(
+        page_title="Aquascape Fuzzy Mamdani",
+        page_icon="🐟",
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
+
+    apply_custom_styles()
+
+    with st.sidebar:
+        st.markdown(
+            """
+            <div style="text-align:center; padding: 1.5rem 0 1rem 0;">
+                <div style="font-size: 2.5rem;">🐟</div>
+                <h2 style="color:#0f4c81; margin:0; font-size:1.3rem; font-weight:700;">Aquascape Fuzzy</h2>
+                <p style="color:#64748b; font-size:0.82rem; margin-top:0.3rem;">Sistem Perawatan Cerdas</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        st.markdown("---")
+
+        page = st.radio(
+            "Navigasi",
+            options=["📥  INPUT", "⚙️  PROSES", "📤  OUTPUT"],
+            label_visibility="collapsed"
+        )
+
+        st.markdown("---")
+        st.markdown(
+            """
+            <div style="font-size:0.78rem; color:#94a3b8; text-align:center; line-height:1.6;">
+                <b>Alur Kerja:</b><br>
+                1️⃣ <b>INPUT</b> — Masukkan data<br>
+                2️⃣ <b>PROSES</b> — Lihat perhitungan<br>
+                3️⃣ <b>OUTPUT</b> — Baca rekomendasi
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    render_main(page)
+
+
+if __name__ == "__main__":
+    main()

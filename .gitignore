@@ -1,0 +1,23 @@
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Output files (auto-generated)
+output/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Data (opsional: hapus baris ini jika ingin ikut push data.xlsx)
+data/data.xlsx
