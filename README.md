@@ -1,5 +1,7 @@
 # AquascapeFuzzy
 
+![Screenshot Aplikasi](assets/app_preview.png)
+
 > **Model Logika Fuzzy Mamdani dalam Menentukan Strategi Perawatan Akuarium Aquascape Berdasarkan Fluktuasi Parameter Kualitas Air**
 
 Sistem komputasi berbasis Python yang mengimplementasikan **Logika Fuzzy Mamdani** secara manual (tanpa library fuzzy pihak ketiga) untuk menganalisis data kualitas air akuarium aquascape dan menghasilkan rekomendasi strategi perawatan.
