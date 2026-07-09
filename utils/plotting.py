@@ -130,21 +130,27 @@ def buat_grafik_mf_ph(graphs_dir: Path) -> None:
     )
 
 
-def buat_grafik_mf_kekeruhan(graphs_dir: Path) -> None:
-    """Membuat grafik fungsi keanggotaan Kekeruhan Air.
+def buat_grafik_mf_tds(graphs_dir: Path) -> None:
+    """Membuat grafik fungsi keanggotaan TDS Air.
 
     Args:
         graphs_dir: Direktori output untuk menyimpan grafik.
     """
-    universe = np.linspace(config.KEKERUHAN_MIN, config.KEKERUHAN_MAX, 500)
+    universe = np.linspace(config.TDS_MIN, config.TDS_MAX, 500)
     plot_membership_function(
-        variabel="kekeruhan",
+        variabel="tds",
         universe=universe,
-        mf_params=config.KEKERUHAN_MF,
-        xlabel="Kekeruhan Air (NTU)",
-        judul="Fungsi Keanggotaan — Kekeruhan Air (NTU)",
-        path_simpan=graphs_dir / "mf_kekeruhan.png",
+        mf_params=config.TDS_MF,
+        xlabel="TDS Air (ppm)",
+        judul="Fungsi Keanggotaan — TDS Air (ppm)",
+        path_simpan=graphs_dir / "mf_tds.png",
     )
+
+
+# Alias backward-compatible
+def buat_grafik_mf_kekeruhan(graphs_dir: Path) -> None:
+    """Alias untuk buat_grafik_mf_tds (backward-compatible)."""
+    buat_grafik_mf_tds(graphs_dir)
 
 
 def buat_grafik_mf_output(graphs_dir: Path) -> None:
@@ -281,6 +287,6 @@ def buat_semua_mf(graphs_dir: Path) -> None:
     """
     buat_grafik_mf_suhu(graphs_dir)
     buat_grafik_mf_ph(graphs_dir)
-    buat_grafik_mf_kekeruhan(graphs_dir)
+    buat_grafik_mf_tds(graphs_dir)
     buat_grafik_mf_output(graphs_dir)
     logger.info("Semua grafik fungsi keanggotaan berhasil dibuat.")

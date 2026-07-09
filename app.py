@@ -18,7 +18,7 @@ from ui.main_page import render_main
 def main():
     st.set_page_config(
         page_title="Aquascape Fuzzy Mamdani",
-        page_icon="🐟",
+        page_icon="🌊",
         layout="wide",
         initial_sidebar_state="expanded"
     )
@@ -29,7 +29,7 @@ def main():
         st.markdown(
             """
             <div style="text-align:center; padding: 1.5rem 0 1rem 0;">
-                <div style="font-size: 2.5rem;">🐟</div>
+                <div style="font-size: 2.5rem;"><span class="material-symbols-rounded" style="font-size: 3rem; color: #60a5fa;">water_ec</span></div>
                 <h2 style="color:#0f4c81; margin:0; font-size:1.3rem; font-weight:700;">Aquascape Fuzzy</h2>
                 <p style="color:#64748b; font-size:0.82rem; margin-top:0.3rem;">Sistem Perawatan Cerdas</p>
             </div>
@@ -40,7 +40,7 @@ def main():
 
         page = st.radio(
             "Navigasi",
-            options=["📥  INPUT", "⚙️  PROSES", "📤  OUTPUT"],
+            options=[":material/input: INPUT", ":material/settings: PROSES", ":material/output: OUTPUT"],
             label_visibility="collapsed"
         )
 
@@ -49,9 +49,9 @@ def main():
             """
             <div style="font-size:0.78rem; color:#94a3b8; text-align:center; line-height:1.6;">
                 <b>Alur Kerja:</b><br>
-                1️⃣ <b>INPUT</b> — Masukkan data<br>
-                2️⃣ <b>PROSES</b> — Lihat perhitungan<br>
-                3️⃣ <b>OUTPUT</b> — Baca rekomendasi
+                <span class="material-symbols-rounded" style="font-size: 0.9rem;">looks_one</span> <b>INPUT</b> — Masukkan data<br>
+                <span class="material-symbols-rounded" style="font-size: 0.9rem;">looks_two</span> <b>PROSES</b> — Lihat perhitungan<br>
+                <span class="material-symbols-rounded" style="font-size: 0.9rem;">looks_3</span> <b>OUTPUT</b> — Baca rekomendasi
             </div>
             """,
             unsafe_allow_html=True

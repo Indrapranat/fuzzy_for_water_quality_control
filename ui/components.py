@@ -48,12 +48,13 @@ def render_card(title: str, content: str, icon: str = "") -> None:
     Args:
         title: Judul card.
         content: Isi teks atau nilai dari card.
-        icon: Emoji atau ikon yang ditampilkan di sebelah judul.
+        icon: Nama material icon (contoh: 'analytics').
     """
+    icon_html = f"<span class='material-symbols-rounded' style='vertical-align: middle; margin-right: 0.3rem; font-size: 1.3rem;'>{icon}</span>" if icon else ""
     st.markdown(
         f"""
         <div class="custom-card">
-            <h4 style="color: #4b5563; margin-top: 0; font-size: 1.1rem;">{icon} {title}</h4>
+            <h4 style="color: #4b5563; margin-top: 0; font-size: 1.1rem; display: flex; align-items: center;">{icon_html} {title}</h4>
             <p style="color: #111827; font-size: 1.5rem; font-weight: 600; margin-bottom: 0;">{content}</p>
         </div>
         """,
@@ -71,8 +72,8 @@ def get_status_indicator(centroid: float) -> tuple:
         Tuple berisi (warna_hex, icon, status_text).
     """
     if centroid < 37.5:
-        return ("#10b981", "🟢", "Sangat Baik (Perawatan Ringan)")
+        return ("#10b981", "<span class='material-symbols-rounded' style='color:#10b981; vertical-align:middle;'>check_circle</span>", "Sangat Baik (Perawatan Ringan)")
     elif centroid < 62.5:
-        return ("#f59e0b", "🟡", "Perlu Perhatian (Perawatan Sedang)")
+        return ("#f59e0b", "<span class='material-symbols-rounded' style='color:#f59e0b; vertical-align:middle;'>warning</span>", "Perlu Perhatian (Perawatan Sedang)")
     else:
-        return ("#ef4444", "🔴", "Kritis (Perawatan Intensif)")
+        return ("#ef4444", "<span class='material-symbols-rounded' style='color:#ef4444; vertical-align:middle;'>error</span>", "Kritis (Perawatan Intensif)")

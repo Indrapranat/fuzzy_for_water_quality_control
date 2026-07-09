@@ -169,22 +169,28 @@ def fuzzifikasi_ph(nilai_ph: float) -> Dict[str, float]:
     return hasil
 
 
-def fuzzifikasi_kekeruhan(nilai_kekeruhan: float) -> Dict[str, float]:
-    """Menghitung derajat keanggotaan untuk variabel Kekeruhan.
+def fuzzifikasi_tds(nilai_tds: float) -> Dict[str, float]:
+    """Menghitung derajat keanggotaan untuk variabel TDS.
 
-    Menggunakan parameter fungsi keanggotaan dari config.KEKERUHAN_MF.
+    Menggunakan parameter fungsi keanggotaan dari config.TDS_MF.
 
     Args:
-        nilai_kekeruhan: Nilai kekeruhan air dalam satuan NTU.
+        nilai_tds: Nilai TDS dalam satuan ppm.
 
     Returns:
         Dictionary dengan kunci nama kategori dan nilai derajat keanggotaan.
-        Contoh: {"Jernih": 1.0, "Sedang": 0.0, "Keruh": 0.0}
+        Contoh: {"Rendah": 1.0, "Sedang": 0.0, "Tinggi": 0.0}
     """
     hasil: Dict[str, float] = {}
-    for kategori, (a, b, c) in config.KEKERUHAN_MF.items():
-        hasil[kategori] = triangular_mf(nilai_kekeruhan, a, b, c)
+    for kategori, (a, b, c) in config.TDS_MF.items():
+        hasil[kategori] = triangular_mf(nilai_tds, a, b, c)
     return hasil
+
+
+# Alias backward-compatible
+def fuzzifikasi_kekeruhan(nilai_kekeruhan: float) -> Dict[str, float]:
+    """Alias untuk fuzzifikasi_tds (backward-compatible)."""
+    return fuzzifikasi_tds(nilai_kekeruhan)
 
 
 def get_output_mf_array(

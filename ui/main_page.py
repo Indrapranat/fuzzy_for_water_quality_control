@@ -19,7 +19,7 @@ from fuzzy.defuzzification import centroid
 
 DESKRIPSI_REKOMENDASI = {
     "Perawatan Ringan": {
-        "emoji": "🟢",
+        "icon": "check_circle",
         "warna_class": "result-ringan",
         "warna_hex": "#10b981",
         "ringkasan": "Kondisi air aquascape Anda dalam keadaan sangat baik dan stabil.",
@@ -33,7 +33,7 @@ DESKRIPSI_REKOMENDASI = {
         ]
     },
     "Perawatan Sedang": {
-        "emoji": "🟡",
+        "icon": "warning",
         "warna_class": "result-sedang",
         "warna_hex": "#f59e0b",
         "ringkasan": "Kondisi air aquascape memerlukan perhatian. Tindakan korektif diperlukan segera.",
@@ -43,11 +43,11 @@ DESKRIPSI_REKOMENDASI = {
             "**Cek sumber masalah:** Identifikasi penyebab penurunan kualitas air — apakah dari overfeeding (kelebihan pakan), kepadatan ikan, tanaman mati membusuk, atau kurangnya sirkulasi.",
             "**Penyesuaian pH:** Jika pH terlalu asam atau basa, gunakan produk penyeimbang pH secara bertahap (jangan ubah drastis dalam satu waktu untuk menghindari syok pada ikan).",
             "**Kurangi pemberian pakan:** Sementara kurangi frekuensi makan ikan menjadi 1x sehari dan pastikan tidak ada sisa pakan yang mengendap di dasar akuarium.",
-            "**Pemantauan intensif:** Ukur ulang parameter (suhu, pH, kekeruhan) setiap hari selama 5–7 hari ke depan hingga nilai kembali ke rentang normal.",
+            "**Pemantauan intensif:** Ukur ulang parameter (suhu, pH, TDS) setiap hari selama 5–7 hari ke depan hingga nilai kembali ke rentang normal.",
         ]
     },
     "Perawatan Intensif": {
-        "emoji": "🔴",
+        "icon": "error",
         "warna_class": "result-intensif",
         "warna_hex": "#ef4444",
         "ringkasan": "Kondisi air aquascape dalam keadaan KRITIS. Tindakan penanganan segera sangat diperlukan untuk menyelamatkan ekosistem.",
@@ -64,19 +64,19 @@ DESKRIPSI_REKOMENDASI = {
 }
 
 
-def _render_proses_satu_data(no, suhu, ph, kekeruhan, hasil, nilai_centroid, kategori):
+def _render_proses_satu_data(no, suhu, ph, tds, hasil, nilai_centroid, kategori):
     """Merender detail proses fuzzy untuk satu data dalam expander."""
-    label = f"Data #{no} — Suhu: {suhu}°C | pH: {ph} | Kekeruhan: {kekeruhan} NTU → {kategori}"
+    label = f"Data #{no} — Suhu: {suhu}°C | pH: {ph} | TDS: {tds} ppm → {kategori}"
     with st.expander(label, expanded=(no == 1)):
         mu_suhu = hasil["mu_suhu"]
         mu_ph = hasil["mu_ph"]
-        mu_kekeruhan = hasil["mu_kekeruhan"]
+        mu_tds = hasil["mu_tds"]
         rules_aktif = hasil["rules_aktif"]
         x_out = hasil["x_output"]
         mu_ag = hasil["mu_agregasi"]
 
         # ── STEP 1: FUZZIFIKASI ──────────────────────────────────────────
-        st.markdown("#### 1️⃣ Fuzzifikasi")
+        st.markdown("#### :material/filter_1: Fuzzifikasi")
         st.markdown(
             """
             <div class="formula-box">
@@ -93,7 +93,7 @@ def _render_proses_satu_data(no, suhu, ph, kekeruhan, hasil, nilai_centroid, kat
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            st.markdown("**🌡️ Suhu Air**")
+            st.markdown("**:material/device_thermostat: Suhu Air**")
             for kat, (a, b, c) in config.SUHU_MF.items():
                 mu = mu_suhu[kat]
                 x = suhu
@@ -107,7 +107,7 @@ def _render_proses_satu_data(no, suhu, ph, kekeruhan, hasil, nilai_centroid, kat
                     st.markdown(f"- μ_{kat}: {rumus}")
 
         with col2:
-            st.markdown("**🧪 pH Air**")
+            st.markdown("**:material/science: pH Air**")
             for kat, (a, b, c) in config.PH_MF.items():
                 mu = mu_ph[kat]
                 x = ph
@@ -121,10 +121,10 @@ def _render_proses_satu_data(no, suhu, ph, kekeruhan, hasil, nilai_centroid, kat
                     st.markdown(f"- μ_{kat}: {rumus}")
 
         with col3:
-            st.markdown("**💧 Kekeruhan**")
-            for kat, (a, b, c) in config.KEKERUHAN_MF.items():
-                mu = mu_kekeruhan[kat]
-                x = kekeruhan
+            st.markdown("**:material/water_drop: TDS Air**")
+            for kat, (a, b, c) in config.TDS_MF.items():
+                mu = mu_tds[kat]
+                x = tds
                 if x <= b:
                     rumus = f"({x} − {a}) / ({b} − {a}) = **{mu:.4f}**" if a != b else "1.0 (shoulder kiri)"
                 else:
@@ -137,11 +137,11 @@ def _render_proses_satu_data(no, suhu, ph, kekeruhan, hasil, nilai_centroid, kat
         st.markdown("---")
 
         # ── STEP 2: EVALUASI RULE ────────────────────────────────────────
-        st.markdown("#### 2️⃣ Evaluasi Rule & Implikasi (Operator AND = MIN)")
+        st.markdown("#### :material/filter_2: Evaluasi Rule & Implikasi (Operator AND = MIN)")
         st.markdown(
             """
             <div class="formula-box">
-            α_i = MIN(μ_suhu, μ_ph, μ_kekeruhan)<br>
+            α_i = MIN(μ_suhu, μ_ph, μ_tds)<br>
             Rule aktif jika α_i > 0. Output rule dipotong (clipping) pada nilai α_i.
             </div>
             """,
@@ -154,7 +154,7 @@ def _render_proses_satu_data(no, suhu, ph, kekeruhan, hasil, nilai_centroid, kat
                     "Rule": f"R{r['rule_no']}",
                     "IF Suhu": r["suhu"],
                     "AND pH": r["ph"],
-                    "AND Kekeruhan": r["kekeruhan"],
+                    "AND TDS": r["tds"],
                     "THEN Output": r["output"],
                     "α (Fire Strength)": f"{r['fire_strength']:.4f}"
                 })
@@ -166,7 +166,7 @@ def _render_proses_satu_data(no, suhu, ph, kekeruhan, hasil, nilai_centroid, kat
         st.markdown("---")
 
         # ── STEP 3: AGREGASI ─────────────────────────────────────────────
-        st.markdown("#### 3️⃣ Agregasi Output (Operator MAX)")
+        st.markdown("#### :material/filter_3: Agregasi Output (Operator MAX)")
         st.markdown(
             """
             <div class="formula-box">
@@ -182,7 +182,7 @@ def _render_proses_satu_data(no, suhu, ph, kekeruhan, hasil, nilai_centroid, kat
         st.markdown("---")
 
         # ── STEP 4: DEFUZZIFIKASI ────────────────────────────────────────
-        st.markdown("#### 4️⃣ Defuzzifikasi (Metode Centroid / Center of Gravity)")
+        st.markdown("#### :material/filter_4: Defuzzifikasi (Metode Centroid / Center of Gravity)")
         import numpy as np
         numerator = float(np.sum(x_out * mu_ag))
         denominator = float(np.sum(mu_ag))
@@ -216,7 +216,7 @@ def _render_output_satu(kategori, nilai_centroid):
     st.markdown(
         f"""
         <div class="{info['warna_class']}">
-            <div style="font-size:3rem;">{info['emoji']}</div>
+            <div style="font-size:3rem; color:{info['warna_hex']};"><span class="material-symbols-rounded" style="font-size: 3.5rem;">{info['icon']}</span></div>
             <div class="result-title" style="color:{info['warna_hex']};">{kategori}</div>
             <p style="font-size:1.05rem; color:#374151; margin-top:0.5rem;">{info['ringkasan']}</p>
             <p style="color:#64748b; font-size:0.9rem;">Nilai Centroid (z*): <b>{nilai_centroid:.4f}</b></p>
@@ -225,7 +225,7 @@ def _render_output_satu(kategori, nilai_centroid):
         unsafe_allow_html=True
     )
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("### 📋 Panduan Tindakan")
+    st.markdown("### :material/list_alt: Panduan Tindakan")
     for poin in info["detail"]:
         st.markdown(f"- {poin}")
 
@@ -235,7 +235,7 @@ def _render_output_satu(kategori, nilai_centroid):
 # ─────────────────────────────────────────────
 
 def render_input():
-    st.markdown("## 📥 Input Data")
+    st.markdown("## :material/input: Input Data")
     st.markdown("Pilih cara memasukkan data parameter kualitas air aquascape Anda:")
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -247,31 +247,31 @@ def render_input():
         st.markdown(
             """
             <div class="section-card">
-                <h3 style="color:#0f4c81; margin-top:0;">💧 Input Manual (Harian)</h3>
+                <h3 style="color:#0f4c81; margin-top:0;"><span class="material-symbols-rounded" style="vertical-align: middle;">water_drop</span> Input Manual (Harian)</h3>
                 <p style="color:#64748b;">Masukkan nilai yang Anda ukur hari ini secara langsung.</p>
             </div>
             """,
             unsafe_allow_html=True
         )
-        suhu = st.number_input("🌡️ Suhu Air (°C)", min_value=0.0, max_value=50.0, value=27.0, step=0.5,
+        suhu = st.number_input(":material/device_thermostat: Suhu Air (°C)", min_value=0.0, max_value=50.0, value=27.0, step=0.5,
                                help="Rentang valid: 0 – 50 °C")
-        ph = st.number_input("🧪 pH Air", min_value=0.0, max_value=14.0, value=7.0, step=0.1,
+        ph = st.number_input(":material/science: pH Air", min_value=0.0, max_value=14.0, value=7.0, step=0.1,
                              help="Rentang valid: 0 – 14")
-        kekeruhan = st.number_input("💧 Kekeruhan (NTU)", min_value=0.0, max_value=100.0, value=10.0, step=1.0,
-                                    help="Rentang valid: 0 – 100 NTU")
+        tds = st.number_input(":material/water_drop: TDS Air (ppm)", min_value=0.0, max_value=1000.0, value=150.0, step=10.0,
+                                    help="Rentang valid: 0 – 1000 ppm")
 
-        if st.button("🔍 Analisis Sekarang", use_container_width=True):
+        if st.button(":material/search: Analisis Sekarang", use_container_width=True):
             try:
-                validasi_baris(1, suhu, ph, kekeruhan)
-                hasil = jalankan_inferensi(suhu, ph, kekeruhan)
+                validasi_baris(1, suhu, ph, tds)
+                hasil = jalankan_inferensi(suhu, ph, tds)
                 nilai_centroid, kategori = centroid(hasil["x_output"], hasil["mu_agregasi"])
                 st.session_state["mode"] = "manual"
                 st.session_state["hasil_manual"] = {
-                    "no": 1, "suhu": suhu, "ph": ph, "kekeruhan": kekeruhan,
+                    "no": 1, "suhu": suhu, "ph": ph, "tds": tds,
                     "hasil": hasil, "centroid": nilai_centroid, "kategori": kategori
                 }
                 st.session_state["page_goto"] = "proses"
-                st.success("✅ Data berhasil dianalisis! Pindah ke halaman **PROSES** atau **OUTPUT** di sidebar.")
+                st.success(":material/check_circle: Data berhasil dianalisis! Pindah ke halaman **PROSES** atau **OUTPUT** di sidebar.")
             except ValidationError as e:
                 st.error(f"Validasi gagal: {e.pesan}")
             except Exception as e:
@@ -282,7 +282,7 @@ def render_input():
         st.markdown(
             """
             <div class="section-card">
-                <h3 style="color:#0f4c81; margin-top:0;">📁 Upload Excel (Banyak Data)</h3>
+                <h3 style="color:#0f4c81; margin-top:0;"><span class="material-symbols-rounded" style="vertical-align: middle;">folder_open</span> Upload Excel (Banyak Data)</h3>
                 <p style="color:#64748b;">Upload file Excel berisi banyak data untuk diproses sekaligus.</p>
             </div>
             """,
@@ -291,13 +291,13 @@ def render_input():
         st.markdown(
             """
             **Format kolom yang wajib ada di file Excel:**
-            | No | Suhu | pH | Kekeruhan |
+            | No | Suhu | pH | TDS |
             |----|------|----|-----------|
-            | 1  | 27.0 | 7.0 | 10.0   |
-            | 2  | 30.5 | 6.5 | 45.0   |
+            | 1  | 27.0 | 7.0 | 150   |
+            | 2  | 30.5 | 6.5 | 450   |
             """
         )
-        uploaded = st.file_uploader("📂 Klik di sini untuk pilih file Excel (.xlsx)", type=["xlsx"])
+        uploaded = st.file_uploader(":material/folder_open: Klik di sini untuk pilih file Excel (.xlsx)", type=["xlsx"])
 
         if uploaded:
             try:
@@ -305,7 +305,7 @@ def render_input():
                 st.success(f"File berhasil dibaca: **{len(df_raw)} baris** data ditemukan.")
                 st.dataframe(df_raw.head(5), use_container_width=True)
 
-                if st.button("🚀 Proses Semua Data", use_container_width=True):
+                if st.button(":material/rocket_launch: Proses Semua Data", use_container_width=True):
                     df_valid, errors = validasi_dataframe(df_raw)
                     if errors:
                         for e in errors:
@@ -320,17 +320,17 @@ def render_input():
                             no = int(row["No"])
                             s = float(row["Suhu"])
                             p = float(row["pH"])
-                            k = float(row["Kekeruhan"])
-                            h = jalankan_inferensi(s, p, k)
+                            t = float(row["TDS"])
+                            h = jalankan_inferensi(s, p, t)
                             nc, kat = centroid(h["x_output"], h["mu_agregasi"])
                             hasil_list.append({
-                                "no": no, "suhu": s, "ph": p, "kekeruhan": k,
+                                "no": no, "suhu": s, "ph": p, "tds": t,
                                 "hasil": h, "centroid": nc, "kategori": kat
                             })
                             bar.progress((i + 1) / total)
                         st.session_state["mode"] = "excel"
                         st.session_state["hasil_excel"] = hasil_list
-                        st.success(f"✅ {total} data berhasil diproses! Pindah ke halaman **PROSES** atau **OUTPUT** di sidebar.")
+                        st.success(f":material/check_circle: {total} data berhasil diproses! Pindah ke halaman **PROSES** atau **OUTPUT** di sidebar.")
             except Exception as e:
                 st.error(f"Gagal membaca file: {e}")
 
@@ -340,7 +340,7 @@ def render_input():
 # ─────────────────────────────────────────────
 
 def render_proses():
-    st.markdown("## ⚙️ Detail Proses Perhitungan Fuzzy")
+    st.markdown("## :material/settings: Detail Proses Perhitungan Fuzzy")
     st.markdown("Berikut adalah penjabaran lengkap setiap tahap perhitungan Logika Fuzzy Mamdani.")
     st.markdown("---")
 
@@ -348,14 +348,14 @@ def render_proses():
 
     if mode == "manual":
         d = st.session_state["hasil_manual"]
-        _render_proses_satu_data(d["no"], d["suhu"], d["ph"], d["kekeruhan"],
+        _render_proses_satu_data(d["no"], d["suhu"], d["ph"], d["tds"],
                                   d["hasil"], d["centroid"], d["kategori"])
 
     elif mode == "excel":
         hasil_list = st.session_state["hasil_excel"]
         st.info(f"Menampilkan detail perhitungan untuk **{len(hasil_list)} data**. Klik setiap baris untuk membuka detail.")
         for d in hasil_list:
-            _render_proses_satu_data(d["no"], d["suhu"], d["ph"], d["kekeruhan"],
+            _render_proses_satu_data(d["no"], d["suhu"], d["ph"], d["tds"],
                                       d["hasil"], d["centroid"], d["kategori"])
     else:
         st.info("Belum ada data yang dianalisis. Silakan masukkan data di halaman **📥 INPUT** terlebih dahulu.")
@@ -366,14 +366,14 @@ def render_proses():
 # ─────────────────────────────────────────────
 
 def render_output():
-    st.markdown("## 📤 Rekomendasi Strategi Perawatan")
+    st.markdown("## :material/output: Rekomendasi Strategi Perawatan")
     st.markdown("---")
 
     mode = st.session_state.get("mode")
 
     if mode == "manual":
         d = st.session_state["hasil_manual"]
-        st.markdown(f"**Data:** Suhu {d['suhu']}°C | pH {d['ph']} | Kekeruhan {d['kekeruhan']} NTU")
+        st.markdown(f"**Data:** Suhu {d['suhu']}°C | pH {d['ph']} | TDS {d['tds']} ppm")
         st.markdown("<br>", unsafe_allow_html=True)
         _render_output_satu(d["kategori"], d["centroid"])
 
@@ -386,18 +386,18 @@ def render_output():
         dist = Counter(d["kategori"] for d in hasil_list)
         c1, c2, c3 = st.columns(3)
         with c1:
-            st.metric("🟢 Perawatan Ringan", dist.get("Perawatan Ringan", 0))
+            st.metric("Perawatan Ringan", dist.get("Perawatan Ringan", 0))
         with c2:
-            st.metric("🟡 Perawatan Sedang", dist.get("Perawatan Sedang", 0))
+            st.metric("Perawatan Sedang", dist.get("Perawatan Sedang", 0))
         with c3:
-            st.metric("🔴 Perawatan Intensif", dist.get("Perawatan Intensif", 0))
+            st.metric("Perawatan Intensif", dist.get("Perawatan Intensif", 0))
 
         st.markdown("---")
 
         # Tabel hasil + download
         df_out = pd.DataFrame([{
             "No": d["no"], "Suhu (°C)": d["suhu"], "pH": d["ph"],
-            "Kekeruhan (NTU)": d["kekeruhan"],
+            "TDS (ppm)": d["tds"],
             "Centroid (z*)": round(d["centroid"], 4),
             "Rekomendasi": d["kategori"]
         } for d in hasil_list])
@@ -406,7 +406,7 @@ def render_output():
         buf = BytesIO()
         with pd.ExcelWriter(buf, engine="openpyxl") as w:
             df_out.to_excel(w, index=False, sheet_name="Hasil Analisis")
-        st.download_button("📥 Download Hasil Excel", buf.getvalue(),
+        st.download_button(":material/download: Download Hasil Excel", buf.getvalue(),
                            "hasil_analisis_aquascape.xlsx",
                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                            use_container_width=True)
@@ -417,7 +417,7 @@ def render_output():
         # Tampilkan panduan untuk setiap kategori yang muncul
         for kat in ["Perawatan Ringan", "Perawatan Sedang", "Perawatan Intensif"]:
             if dist.get(kat, 0) > 0:
-                with st.expander(f"{DESKRIPSI_REKOMENDASI[kat]['emoji']} {kat} ({dist[kat]} data)", expanded=False):
+                with st.expander(f":material/{DESKRIPSI_REKOMENDASI[kat]['icon']}: {kat} ({dist[kat]} data)", expanded=False):
                     _render_output_satu(kat, next(d["centroid"] for d in hasil_list if d["kategori"] == kat))
 
     else:
@@ -429,9 +429,9 @@ def render_output():
 # ─────────────────────────────────────────────
 
 def render_main(page: str):
-    if "📥" in page:
+    if "INPUT" in page:
         render_input()
-    elif "⚙️" in page:
+    elif "PROSES" in page:
         render_proses()
-    elif "📤" in page:
+    elif "OUTPUT" in page:
         render_output()

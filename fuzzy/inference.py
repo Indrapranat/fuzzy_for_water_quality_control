@@ -11,7 +11,7 @@ Tahap 1 — Fuzzifikasi:
 
 Tahap 2 — Evaluasi Rule (Operator AND → MIN):
     Setiap rule dievaluasi dengan operator AND menggunakan fungsi MIN.
-    Fire Strength = MIN(μ_suhu, μ_ph, μ_kekeruhan)
+    Fire Strength = MIN(μ_suhu, μ_ph, μ_tds)
 
 Tahap 3 — Implikasi:
     Setiap rule yang aktif (fire strength > 0) menghasilkan potongan
@@ -31,7 +31,7 @@ import logging
 from fuzzy.membership import (
     fuzzifikasi_suhu,
     fuzzifikasi_ph,
-    fuzzifikasi_kekeruhan,
+    fuzzifikasi_tds,
     triangular_mf_array,
 )
 from fuzzy.rules import RULES
@@ -43,57 +43,54 @@ logger = logging.getLogger(__name__)
 def evaluasi_rule(
     mu_suhu: Dict[str, float],
     mu_ph: Dict[str, float],
-    mu_kekeruhan: Dict[str, float],
+    mu_tds: Dict[str, float],
 ) -> List[Dict[str, Any]]:
     """Mengevaluasi seluruh rule fuzzy dengan operator AND (MIN).
 
     Untuk setiap rule, fire strength dihitung sebagai:
-        α_i = MIN(μ_suhu[kategori], μ_ph[kategori], μ_kekeruhan[kategori])
+        α_i = MIN(μ_suhu[kategori], μ_ph[kategori], μ_tds[kategori])
 
     Rule dikatakan aktif jika α_i > 0.
 
     Args:
         mu_suhu: Derajat keanggotaan Suhu untuk setiap kategori.
         mu_ph: Derajat keanggotaan pH untuk setiap kategori.
-        mu_kekeruhan: Derajat keanggotaan Kekeruhan untuk setiap kategori.
+        mu_tds: Derajat keanggotaan TDS untuk setiap kategori.
 
     Returns:
         List dictionary berisi informasi setiap rule yang aktif:
         {
-            "rule_no":        int,    # Nomor rule (1-27)
-            "suhu":           str,    # Kategori suhu yang dievaluasi
-            "ph":             str,    # Kategori pH yang dievaluasi
-            "kekeruhan":      str,    # Kategori kekeruhan yang dievaluasi
-            "output":         str,    # Kategori output yang dihasilkan
-            "mu_suhu":        float,  # Derajat keanggotaan suhu
-            "mu_ph":          float,  # Derajat keanggotaan pH
-            "mu_kekeruhan":   float,  # Derajat keanggotaan kekeruhan
-            "fire_strength":  float,  # MIN(mu_suhu, mu_ph, mu_kekeruhan)
-            "aktif":          bool,   # True jika fire_strength > 0
+            "rule_no":       int,    # Nomor rule (1-27)
+            "suhu":          str,    # Kategori suhu
+            "ph":            str,    # Kategori pH
+            "tds":           str,    # Kategori TDS
+            "output":        str,    # Kategori output
+            "mu_suhu":       float,  # Derajat keanggotaan suhu
+            "mu_ph":         float,  # Derajat keanggotaan pH
+            "mu_tds":        float,  # Derajat keanggotaan TDS
+            "fire_strength": float,  # MIN(mu_suhu, mu_ph, mu_tds)
+            "aktif":         bool,   # True jika fire_strength > 0
         }
     """
     hasil_evaluasi: List[Dict[str, Any]] = []
 
     for i, rule in enumerate(RULES, start=1):
-        # Ambil derajat keanggotaan masing-masing anteseden
         mu_s = mu_suhu.get(rule["suhu"], 0.0)
         mu_p = mu_ph.get(rule["ph"], 0.0)
-        mu_k = mu_kekeruhan.get(rule["kekeruhan"], 0.0)
+        mu_t = mu_tds.get(rule["tds"], 0.0)
 
-        # Operator AND: gunakan fungsi MIN
-        fire_strength = min(mu_s, mu_p, mu_k)
-
+        fire_strength = min(mu_s, mu_p, mu_t)
         aktif = fire_strength > 0.0
 
         hasil_evaluasi.append({
             "rule_no":       i,
             "suhu":          rule["suhu"],
             "ph":            rule["ph"],
-            "kekeruhan":     rule["kekeruhan"],
+            "tds":           rule["tds"],
             "output":        rule["output"],
             "mu_suhu":       mu_s,
             "mu_ph":         mu_p,
-            "mu_kekeruhan":  mu_k,
+            "mu_tds":        mu_t,
             "fire_strength": fire_strength,
             "aktif":         aktif,
         })
@@ -149,58 +146,49 @@ def agregasi_max(
 def jalankan_inferensi(
     suhu: float,
     ph: float,
-    kekeruhan: float,
+    tds: float,
 ) -> Dict[str, Any]:
     """Menjalankan seluruh proses inferensi Mamdani untuk satu data input.
-
-    Menggabungkan seluruh tahap: fuzzifikasi → evaluasi rule →
-    implikasi MIN → agregasi MAX.
 
     Args:
         suhu: Nilai suhu air (°C).
         ph: Nilai pH air.
-        kekeruhan: Nilai kekeruhan air (NTU).
+        tds: Nilai TDS air (ppm).
 
     Returns:
         Dictionary berisi hasil lengkap inferensi:
         {
-            "input":              dict,       # Nilai input crisp
-            "mu_suhu":            dict,       # Derajat keanggotaan Suhu
-            "mu_ph":              dict,       # Derajat keanggotaan pH
-            "mu_kekeruhan":       dict,       # Derajat keanggotaan Kekeruhan
-            "hasil_evaluasi":     list,       # Hasil evaluasi 27 rule
-            "rules_aktif":        list,       # Hanya rule yang aktif
-            "x_output":           np.ndarray, # Universe output
-            "mu_agregasi":        np.ndarray, # Fungsi agregasi MAX
+            "input":          dict,       # Nilai input crisp
+            "mu_suhu":        dict,       # Derajat keanggotaan Suhu
+            "mu_ph":          dict,       # Derajat keanggotaan pH
+            "mu_tds":         dict,       # Derajat keanggotaan TDS
+            "hasil_evaluasi": list,       # Hasil evaluasi 27 rule
+            "rules_aktif":    list,       # Hanya rule yang aktif
+            "x_output":       np.ndarray, # Universe output
+            "mu_agregasi":    np.ndarray, # Fungsi agregasi MAX
         }
     """
     logger.debug(
-        "Memulai inferensi: Suhu=%.2f°C, pH=%.2f, Kekeruhan=%.2f NTU",
-        suhu, ph, kekeruhan,
+        "Memulai inferensi: Suhu=%.2f°C, pH=%.2f, TDS=%.2f ppm",
+        suhu, ph, tds,
     )
 
-    # -----------------------------------------------------------------------
     # TAHAP 1: FUZZIFIKASI
-    # -----------------------------------------------------------------------
     mu_suhu = fuzzifikasi_suhu(suhu)
     mu_ph = fuzzifikasi_ph(ph)
-    mu_kekeruhan = fuzzifikasi_kekeruhan(kekeruhan)
+    mu_tds = fuzzifikasi_tds(tds)
 
     logger.debug("Fuzzifikasi Suhu: %s", mu_suhu)
     logger.debug("Fuzzifikasi pH: %s", mu_ph)
-    logger.debug("Fuzzifikasi Kekeruhan: %s", mu_kekeruhan)
+    logger.debug("Fuzzifikasi TDS: %s", mu_tds)
 
-    # -----------------------------------------------------------------------
     # TAHAP 2 & 3: EVALUASI RULE + IMPLIKASI MIN
-    # -----------------------------------------------------------------------
-    hasil_evaluasi = evaluasi_rule(mu_suhu, mu_ph, mu_kekeruhan)
+    hasil_evaluasi = evaluasi_rule(mu_suhu, mu_ph, mu_tds)
 
     rules_aktif = [r for r in hasil_evaluasi if r["aktif"]]
     logger.debug("Rule aktif: %d dari %d rule", len(rules_aktif), len(hasil_evaluasi))
 
-    # -----------------------------------------------------------------------
     # TAHAP 4: AGREGASI MAX
-    # -----------------------------------------------------------------------
     x_output = np.linspace(
         config.OUTPUT_MIN,
         config.OUTPUT_MAX,
@@ -209,10 +197,10 @@ def jalankan_inferensi(
     mu_agregasi = agregasi_max(hasil_evaluasi, x_output)
 
     return {
-        "input": {"suhu": suhu, "ph": ph, "kekeruhan": kekeruhan},
+        "input": {"suhu": suhu, "ph": ph, "tds": tds},
         "mu_suhu": mu_suhu,
         "mu_ph": mu_ph,
-        "mu_kekeruhan": mu_kekeruhan,
+        "mu_tds": mu_tds,
         "hasil_evaluasi": hasil_evaluasi,
         "rules_aktif": rules_aktif,
         "x_output": x_output,

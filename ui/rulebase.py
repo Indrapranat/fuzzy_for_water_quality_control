@@ -16,7 +16,7 @@ from ui.components import render_header
 def render_rulebase() -> None:
     """Merender konten halaman Rule Base."""
     render_header(
-        title="📋 Rule Base Mamdani",
+        title="<span class='material-symbols-rounded' style='vertical-align: middle; font-size: 2.5rem;'>format_list_numbered</span> Rule Base Mamdani",
         subtitle="Daftar lengkap 27 Aturan yang digunakan oleh Engine Fuzzy"
     )
 
@@ -42,7 +42,7 @@ def render_rulebase() -> None:
     })
 
     # Fitur Pencarian & Filter
-    st.markdown("### 🔍 Cari / Filter Rule")
+    st.markdown("### :material/search: Cari / Filter Rule")
     col1, col2, col3 = st.columns(3)
     
     with col1:

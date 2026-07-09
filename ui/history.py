@@ -17,7 +17,7 @@ from ui.components import render_header
 def render_history() -> None:
     """Merender konten halaman Riwayat Analisis."""
     render_header(
-        title="📁 Riwayat Analisis",
+        title="<span class='material-symbols-rounded' style='vertical-align: middle; font-size: 2.5rem;'>history</span> Riwayat Analisis",
         subtitle="Data hasil analisis sebelumnya yang tersimpan di sistem."
     )
 
@@ -39,7 +39,7 @@ def render_history() -> None:
             df.to_excel(writer, index=False, sheet_name="Riwayat")
         
         st.download_button(
-            label="📥 Download Data (Excel)",
+            label=":material/download: Download Data (Excel)",
             data=excel_buffer.getvalue(),
             file_name="riwayat_analisis_aquascape.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

@@ -8,9 +8,9 @@ yang telah ditetapkan dalam penelitian. Data yang tidak valid akan
 ditolak sebelum memasuki proses fuzzifikasi.
 
 Rentang validasi:
-    - Suhu      : 0 – 50 °C
-    - pH        : 0 – 14
-    - Kekeruhan : 0 – 100 NTU
+    - Suhu : 0 – 50 °C
+    - pH   : 0 – 14
+    - TDS  : 0 – 1000 ppm
 """
 
 from typing import List, Tuple, Optional
@@ -94,55 +94,57 @@ def validasi_ph(nilai: float, baris: int) -> None:
         )
 
 
-def validasi_kekeruhan(nilai: float, baris: int) -> None:
-    """Memvalidasi nilai kekeruhan.
+def validasi_tds(nilai: float, baris: int) -> None:
+    """Memvalidasi nilai TDS.
 
     Args:
-        nilai: Nilai kekeruhan dalam satuan NTU.
+        nilai: Nilai TDS dalam satuan ppm.
         baris: Nomor baris data (untuk pesan error).
 
     Raises:
-        ValidationError: Jika nilai kekeruhan di luar rentang [0, 100].
-        ValidationError: Jika nilai kekeruhan bukan tipe numerik.
+        ValidationError: Jika nilai TDS di luar rentang [0, 1000].
+        ValidationError: Jika nilai TDS bukan tipe numerik.
     """
     if not isinstance(nilai, (int, float)):
         raise ValidationError(
             baris,
-            f"Kekeruhan harus berupa angka, ditemukan: {type(nilai).__name__} = '{nilai}'"
+            f"TDS harus berupa angka, ditemukan: {type(nilai).__name__} = '{nilai}'"
         )
     if pd.isna(nilai):
-        raise ValidationError(baris, "Nilai Kekeruhan tidak boleh kosong (NaN).")
-    if not (config.KEKERUHAN_MIN <= nilai <= config.KEKERUHAN_MAX):
+        raise ValidationError(baris, "Nilai TDS tidak boleh kosong (NaN).")
+    if not (config.TDS_MIN <= nilai <= config.TDS_MAX):
         raise ValidationError(
             baris,
-            f"Kekeruhan={nilai} NTU di luar rentang valid "
-            f"[{config.KEKERUHAN_MIN}, {config.KEKERUHAN_MAX}] NTU."
+            f"TDS={nilai} ppm di luar rentang valid "
+            f"[{config.TDS_MIN}, {config.TDS_MAX}] ppm."
         )
+
+
+# Alias backward-compatible
+validasi_kekeruhan = validasi_tds
 
 
 def validasi_baris(
     no: int,
     suhu: float,
     ph: float,
-    kekeruhan: float,
+    tds: float,
 ) -> None:
     """Memvalidasi satu baris data input secara lengkap.
 
-    Memanggil validasi untuk Suhu, pH, dan Kekeruhan secara berurutan.
-
     Args:
-        no: Nomor urut data (ditampilkan pada pesan error).
+        no: Nomor urut data.
         suhu: Nilai suhu (°C).
         ph: Nilai pH.
-        kekeruhan: Nilai kekeruhan (NTU).
+        tds: Nilai TDS (ppm).
 
     Raises:
         ValidationError: Jika salah satu nilai tidak valid.
     """
     validasi_suhu(suhu, no)
     validasi_ph(ph, no)
-    validasi_kekeruhan(kekeruhan, no)
-    logger.debug("Validasi baris %d: OK (Suhu=%.2f, pH=%.2f, Kekeruhan=%.2f)", no, suhu, ph, kekeruhan)
+    validasi_tds(tds, no)
+    logger.debug("Validasi baris %d: OK (Suhu=%.2f, pH=%.2f, TDS=%.2f)", no, suhu, ph, tds)
 
 
 def validasi_dataframe(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
@@ -163,13 +165,18 @@ def validasi_dataframe(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
     Raises:
         ValueError: Jika kolom wajib tidak ditemukan di file Excel.
     """
-    kolom_wajib = ["No", "Suhu", "pH", "Kekeruhan"]
+    kolom_wajib = ["No", "Suhu", "pH", "TDS"]
     kolom_hilang = [k for k in kolom_wajib if k not in df.columns]
     if kolom_hilang:
-        raise ValueError(
-            f"Kolom wajib tidak ditemukan: {kolom_hilang}. "
-            f"Kolom yang tersedia: {list(df.columns)}"
-        )
+        # Cek juga kolom lama 'Kekeruhan' untuk kompatibilitas
+        if "Kekeruhan" in df.columns and "TDS" not in df.columns:
+            df = df.rename(columns={"Kekeruhan": "TDS"})
+            kolom_hilang = []
+        else:
+            raise ValueError(
+                f"Kolom wajib tidak ditemukan: {kolom_hilang}. "
+                f"Kolom yang tersedia: {list(df.columns)}"
+            )
 
     baris_valid: List[int] = []
     pesan_error: List[str] = []
@@ -179,8 +186,8 @@ def validasi_dataframe(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
         try:
             suhu = float(row["Suhu"])
             ph = float(row["pH"])
-            kekeruhan = float(row["Kekeruhan"])
-            validasi_baris(no, suhu, ph, kekeruhan)
+            tds = float(row["TDS"])
+            validasi_baris(no, suhu, ph, tds)
             baris_valid.append(idx)  # type: ignore[arg-type]
         except ValidationError as e:
             pesan = str(e)

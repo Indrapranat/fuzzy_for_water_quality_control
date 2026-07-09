@@ -70,12 +70,12 @@ def tulis_hasil(
     records = []
     for h in hasil_list:
         records.append({
-            "No":             h["no"],
-            "Suhu (°C)":      h["suhu"],
-            "pH":             h["ph"],
-            "Kekeruhan (NTU)": h["kekeruhan"],
+            "No":            h["no"],
+            "Suhu (°C)":     h["suhu"],
+            "pH":            h["ph"],
+            "TDS (ppm)":     h["tds"],
             "Nilai Centroid": round(h["centroid"], 4),
-            "Kategori":       h["kategori"],
+            "Kategori":      h["kategori"],
         })
 
     df_output = pd.DataFrame(records)

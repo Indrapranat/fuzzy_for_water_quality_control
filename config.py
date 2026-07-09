@@ -52,18 +52,23 @@ PH_MIN: float = 0.0
 PH_MAX: float = 14.0
 
 # ---------------------------------------------------------------------------
-# PARAMETER FUNGSI KEANGGOTAAN — INPUT 3: KEKERUHAN (NTU)
+# PARAMETER FUNGSI KEANGGOTAAN — INPUT 3: TDS (ppm)
 # ---------------------------------------------------------------------------
 
-KEKERUHAN_MF = {
-    "Jernih": (0.0, 0.0, 40.0),    # Jernih: 0 - 0 - 40
-    "Sedang": (20.0, 50.0, 80.0),  # Sedang: 20 - 50 - 80
-    "Keruh": (60.0, 100.0, 100.0), # Keruh: 60 - 100 - 100
+TDS_MF = {
+    "Rendah": (0.0, 0.0, 200.0),      # Rendah: 0 - 0 - 200
+    "Sedang": (100.0, 300.0, 500.0),  # Sedang: 100 - 300 - 500
+    "Tinggi": (400.0, 1000.0, 1000.0), # Tinggi: 400 - 1000 - 1000
 }
 
-# Batas validasi kekeruhan
-KEKERUHAN_MIN: float = 0.0
-KEKERUHAN_MAX: float = 100.0
+# Alias backward-compatible
+KEKERUHAN_MF = TDS_MF
+
+# Batas validasi TDS
+TDS_MIN: float = 0.0
+TDS_MAX: float = 1000.0
+KEKERUHAN_MIN: float = TDS_MIN
+KEKERUHAN_MAX: float = TDS_MAX
 
 # ---------------------------------------------------------------------------
 # PARAMETER FUNGSI KEANGGOTAAN — OUTPUT: STRATEGI PERAWATAN
@@ -98,10 +103,10 @@ COLOR_PALETTE = {
     "Asam": "#FF7043",
     "Netral": "#26C6DA",
     "Basa": "#7E57C2",
-    # Kekeruhan
-    "Jernih": "#29B6F6",
+    # TDS
+    "Rendah": "#29B6F6",
     "Sedang": "#FFA726",
-    "Keruh": "#8D6E63",
+    "Tinggi": "#8D6E63",
     # Output
     "Perawatan Ringan": "#66BB6A",
     "Perawatan Sedang": "#FFA726",

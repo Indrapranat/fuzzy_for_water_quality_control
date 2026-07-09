@@ -13,18 +13,18 @@ from ui.components import render_header
 def render_about() -> None:
     """Merender konten halaman Tentang Penelitian."""
     render_header(
-        title="ℹ️ Tentang Penelitian",
+        title="<span class='material-symbols-rounded' style='vertical-align: middle; font-size: 2.5rem;'>info</span> Tentang Penelitian",
         subtitle="Informasi Skripsi dan Pengembangan Sistem"
     )
 
     with st.container():
-        st.markdown("### 🎓 Judul Skripsi")
+        st.markdown("### :material/school: Judul Skripsi")
         st.info(
             "**Model Logika Fuzzy Mamdani dalam Menentukan Strategi Perawatan "
             "Akuarium Aquascape Berdasarkan Fluktuasi Parameter Kualitas Air**"
         )
         
-        st.markdown("### 🎯 Tujuan Penelitian")
+        st.markdown("### :material/flag: Tujuan Penelitian")
         st.write(
             "Penelitian ini bertujuan untuk merancang dan membangun model komputasi "
             "berbasis Logika Fuzzy Mamdani guna menentukan strategi perawatan "
@@ -38,7 +38,7 @@ def render_about() -> None:
         
         c1, c2 = st.columns(2)
         with c1:
-            st.markdown("### 📥 Variabel Input")
+            st.markdown("### :material/input: Variabel Input")
             st.markdown(
                 """
                 1. **Suhu Air (°C)**
@@ -57,7 +57,7 @@ def render_about() -> None:
             )
         
         with c2:
-            st.markdown("### 📤 Variabel Output")
+            st.markdown("### :material/output: Variabel Output")
             st.markdown(
                 """
                 - **Strategi Perawatan (0 - 100)**
@@ -69,7 +69,7 @@ def render_about() -> None:
             
         st.markdown("---")
         
-        st.markdown("### 🛠️ Spesifikasi Sistem & Library")
+        st.markdown("### :material/build: Spesifikasi Sistem & Library")
         st.write("Sistem ini dibangun menggunakan ekosistem Python murni tanpa bergantung pada library fuzzy black-box (seperti scikit-fuzzy) untuk memastikan transparansi algoritma (white-box).")
         
         libs = {

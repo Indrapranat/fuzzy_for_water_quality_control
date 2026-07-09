@@ -75,16 +75,16 @@ def cetak_hasil_detail(
     inp = hasil_inferensi["input"]
     mu_s = hasil_inferensi["mu_suhu"]
     mu_p = hasil_inferensi["mu_ph"]
-    mu_k = hasil_inferensi["mu_kekeruhan"]
+    mu_t = hasil_inferensi["mu_tds"]
     rules_aktif = hasil_inferensi["rules_aktif"]
 
     print(f"\n" + "-" * 70)
     print(f"  DATA #{no}")
     print("-" * 70)
     print(f"  INPUT:")
-    print(f"    Suhu      = {inp['suhu']:.2f} °C")
-    print(f"    pH        = {inp['ph']:.2f}")
-    print(f"    Kekeruhan = {inp['kekeruhan']:.2f} NTU")
+    print(f"    Suhu = {inp['suhu']:.2f} °C")
+    print(f"    pH   = {inp['ph']:.2f}")
+    print(f"    TDS  = {inp['tds']:.2f} ppm")
 
     print(f"\n  NILAI MEMBERSHIP:")
     print(f"    Suhu:")
@@ -93,8 +93,8 @@ def cetak_hasil_detail(
     print(f"    pH:")
     for k, v in mu_p.items():
         print(f"      μ_{k:<8} = {v:.4f}")
-    print(f"    Kekeruhan:")
-    for k, v in mu_k.items():
+    print(f"    TDS:")
+    for k, v in mu_t.items():
         print(f"      μ_{k:<8} = {v:.4f}")
 
     print(f"\n  RULE YANG AKTIF ({len(rules_aktif)} dari 27 rule):")
@@ -102,7 +102,7 @@ def cetak_hasil_detail(
         for r in rules_aktif:
             print(
                 f"    R{r['rule_no']:>2}. IF Suhu={r['suhu']:<7} "
-                f"AND pH={r['ph']:<7} AND Kekeruhan={r['kekeruhan']:<7} "
+                f"AND pH={r['ph']:<7} AND TDS={r['tds']:<7} "
                 f"=> {r['output']:<22} | alpha = {r['fire_strength']:.4f}"
             )
     else:
@@ -165,10 +165,9 @@ def proses_semua_data() -> List[Dict[str, Any]]:
         no = int(row["No"])
         suhu = float(row["Suhu"])
         ph = float(row["pH"])
-        kekeruhan = float(row["Kekeruhan"])
+        tds = float(row["TDS"])
 
-        # Inferensi Mamdani (Fuzzifikasi + Evaluasi Rule + Agregasi MAX)
-        hasil_inferensi = jalankan_inferensi(suhu, ph, kekeruhan)
+        hasil_inferensi = jalankan_inferensi(suhu, ph, tds)
 
         # Defuzzifikasi Centroid
         nilai_centroid, kategori = centroid(
@@ -179,14 +178,13 @@ def proses_semua_data() -> List[Dict[str, Any]]:
         # Cetak detail ke konsol
         cetak_hasil_detail(no, hasil_inferensi, nilai_centroid, kategori)
 
-        # Simpan data hasil untuk output Excel
         hasil_list.append({
-            "no":        no,
-            "suhu":      suhu,
-            "ph":        ph,
-            "kekeruhan": kekeruhan,
-            "centroid":  nilai_centroid,
-            "kategori":  kategori,
+            "no":    no,
+            "suhu":  suhu,
+            "ph":    ph,
+            "tds":   tds,
+            "centroid": nilai_centroid,
+            "kategori": kategori,
         })
 
         # Buat grafik agregasi dan defuzzifikasi untuk data ini
@@ -206,9 +204,9 @@ def proses_semua_data() -> List[Dict[str, Any]]:
         )
 
         logger.info(
-            "Data #%d selesai: Suhu=%.2f°C, pH=%.2f, Kekeruhan=%.2f NTU "
+            "Data #%d selesai: Suhu=%.2f°C, pH=%.2f, TDS=%.2f ppm "
             "→ Centroid=%.4f → %s",
-            no, suhu, ph, kekeruhan, nilai_centroid, kategori,
+            no, suhu, ph, tds, nilai_centroid, kategori,
         )
 
     return hasil_list

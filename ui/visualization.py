@@ -17,7 +17,7 @@ from ui.components import render_header
 def render_visualization() -> None:
     """Merender konten halaman Visualisasi Membership."""
     render_header(
-        title="📈 Visualisasi Membership",
+        title="<span class='material-symbols-rounded' style='vertical-align: middle; font-size: 2.5rem;'>show_chart</span> Visualisasi Membership",
         subtitle="Grafik Fungsi Keanggotaan Logika Fuzzy Mamdani"
     )
 

@@ -24,11 +24,11 @@ import config
 def render_analysis() -> None:
     """Merender konten halaman Analisis Data."""
     render_header(
-        title="📊 Analisis Kualitas Air",
+        title="<span class='material-symbols-rounded' style='vertical-align: middle; font-size: 2.5rem;'>analytics</span> Analisis Kualitas Air",
         subtitle="Analisis strategi perawatan aquascape melalui input manual atau upload data Excel."
     )
 
-    tab1, tab2 = st.tabs(["💧 Input Manual (Harian)", "📁 Upload Excel (Banyak Data)"])
+    tab1, tab2 = st.tabs([":material/water_drop: Input Manual (Harian)", ":material/folder_open: Upload Excel (Banyak Data)"])
 
     with tab1:
         st.markdown("### Parameter Input Harian")
@@ -69,7 +69,7 @@ def render_analysis() -> None:
         
         kolom_tombol, _ = st.columns([1, 4])
         with kolom_tombol:
-            analisis_btn = st.button("🔍 Analisis Data Harian", use_container_width=True)
+            analisis_btn = st.button(":material/search: Analisis Data Harian", use_container_width=True)
             
         st.markdown("---")
 
@@ -90,7 +90,7 @@ def render_analysis() -> None:
                     )
                     rules_aktif = hasil_inferensi["rules_aktif"]
                     
-                st.success("Analisis berhasil diselesaikan!")
+                st.success(":material/check_circle: Analisis berhasil diselesaikan!")
                 
                 # Tampilkan Hasil di Cards
                 st.markdown("### Hasil Analisis")
@@ -101,11 +101,11 @@ def render_analysis() -> None:
                 c3, c4 = st.columns(2)
                 
                 with c1:
-                    render_card("Nilai Centroid (z*)", f"{nilai_centroid:.4f}", "🎯")
+                    render_card("Nilai Centroid (z*)", f"{nilai_centroid:.4f}", "my_location")
                 with c2:
-                    render_card("Strategi Perawatan", kategori, "📋")
+                    render_card("Strategi Perawatan", kategori, "list_alt")
                 with c3:
-                    render_card("Jumlah Rule Aktif", f"{len(rules_aktif)} dari 27", "⚡")
+                    render_card("Jumlah Rule Aktif", f"{len(rules_aktif)} dari 27", "bolt")
                 with c4:
                     render_card("Status Kondisi Air", f"{icon_status} {teks_status}", "")
                     
@@ -164,7 +164,7 @@ def render_analysis() -> None:
                 with st.expander("Preview Data Excel yang Diupload", expanded=True):
                     st.dataframe(df_raw.head(10))
                 
-                if st.button("🚀 Proses Semua Data Excel", use_container_width=True):
+                if st.button(":material/rocket_launch: Proses Semua Data Excel", use_container_width=True):
                     with st.spinner("Memvalidasi dan memproses data..."):
                         df_valid, pesan_error = validasi_dataframe(df_raw)
                         
@@ -206,7 +206,7 @@ def render_analysis() -> None:
                                 progress_bar.progress((i + 1) / total_data)
                                 
                             df_hasil = pd.DataFrame(hasil_list)
-                            st.success(f"✅ Berhasil memproses {total_data} baris data!")
+                            st.success(f":material/check_circle: Berhasil memproses {total_data} baris data!")
                             
                             st.write("### Preview Hasil Analisis")
                             st.dataframe(df_hasil, use_container_width=True)
@@ -218,7 +218,7 @@ def render_analysis() -> None:
                             
                             st.markdown("#### Unduh Hasil")
                             st.download_button(
-                                label="📥 Download File Hasil (Excel)",
+                                label=":material/download: Download File Hasil (Excel)",
                                 data=excel_buffer.getvalue(),
                                 file_name="hasil_analisis_aquascape.xlsx",
                                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

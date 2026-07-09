@@ -14,11 +14,11 @@ from ui.components import render_header
 def render_dashboard() -> None:
     """Merender konten halaman Dashboard."""
     render_header(
-        title="🏠 Dashboard",
+        title="<span class='material-symbols-rounded' style='vertical-align: middle; font-size: 2.5rem;'>home</span> Dashboard",
         subtitle="Sistem Inferensi Fuzzy Mamdani untuk Perawatan Aquascape"
     )
 
-    st.markdown("### Judul Penelitian")
+    st.markdown("### :material/title: Judul Penelitian")
     st.info(
         "**Model Logika Fuzzy Mamdani dalam Menentukan Strategi Perawatan "
         "Akuarium Aquascape Berdasarkan Fluktuasi Parameter Kualitas Air**"
@@ -35,7 +35,7 @@ def render_dashboard() -> None:
 
     st.markdown("---")
     
-    st.markdown("### Deskripsi Sistem")
+    st.markdown("### :material/description: Deskripsi Sistem")
     st.write(
         "Sistem ini dikembangkan untuk membantu dalam menentukan strategi perawatan "
         "akuarium aquascape secara otomatis berdasarkan tiga parameter kualitas air: "
@@ -44,7 +44,7 @@ def render_dashboard() -> None:
         "memberikan rekomendasi perawatan yang proporsional."
     )
 
-    st.markdown("### Diagram Alur Inferensi Fuzzy")
+    st.markdown("### :material/account_tree: Diagram Alur Inferensi Fuzzy")
     
     # Membuat diagram alur menggunakan container dan styling CSS sederhana
     st.markdown(

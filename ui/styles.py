@@ -12,6 +12,18 @@ def apply_custom_styles() -> None:
         """
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+        /* Material Icons Class */
+        .material-symbols-rounded {
+          font-family: 'Material Symbols Rounded', sans-serif !important;
+          font-variation-settings:
+          'FILL' 1,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+          vertical-align: middle;
+        }
 
         html, body, [class*="css"] {
             font-family: 'Inter', sans-serif;
