@@ -2,7 +2,7 @@
 app.py
 ======
 Entry point utama untuk aplikasi Streamlit.
-Hanya memiliki 3 halaman: Input, Proses, Output.
+Memiliki 4 halaman: Input, Proses, Output, Rule Base.
 """
 
 import streamlit as st
@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.resolve()))
 
 from ui.styles import apply_custom_styles
 from ui.main_page import render_main
+from ui.rulebase import render_rulebase
 
 
 def main():
@@ -40,7 +41,12 @@ def main():
 
         page = st.radio(
             "Navigasi",
-            options=[":material/input: INPUT", ":material/settings: PROSES", ":material/output: OUTPUT"],
+            options=[
+                ":material/input: INPUT",
+                ":material/settings: PROSES",
+                ":material/output: OUTPUT",
+                ":material/format_list_numbered: RULE BASE",
+            ],
             label_visibility="collapsed"
         )
 
@@ -51,13 +57,17 @@ def main():
                 <b>Alur Kerja:</b><br>
                 <span class="material-symbols-rounded" style="font-size: 0.9rem;">looks_one</span> <b>INPUT</b> — Masukkan data<br>
                 <span class="material-symbols-rounded" style="font-size: 0.9rem;">looks_two</span> <b>PROSES</b> — Lihat perhitungan<br>
-                <span class="material-symbols-rounded" style="font-size: 0.9rem;">looks_3</span> <b>OUTPUT</b> — Baca rekomendasi
+                <span class="material-symbols-rounded" style="font-size: 0.9rem;">looks_3</span> <b>OUTPUT</b> — Baca rekomendasi<br>
+                <span class="material-symbols-rounded" style="font-size: 0.9rem;">looks_4</span> <b>RULE BASE</b> — 27 Aturan Fuzzy
             </div>
             """,
             unsafe_allow_html=True
         )
 
-    render_main(page)
+    if "RULE BASE" in page:
+        render_rulebase()
+    else:
+        render_main(page)
 
 
 if __name__ == "__main__":
